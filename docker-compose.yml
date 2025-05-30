@@ -1,0 +1,31 @@
+services:
+  database_todo:
+    image: database_todo
+    build:
+      context: ./data/
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DATABASE}
+    volumes:
+      - ./data/data:/var/lib/postgresql/data
+    networks:
+      - todo_net
+  backend_todo:
+    image: backend_todo
+    build:
+      context: ./
+    ports:
+      - "8080:3000"
+      - "3001:3001"  # Puerto para WebSocket
+    environment:
+      - WEBSOCKET_PORT=3001
+    depends_on:
+      - database_todo
+    networks:
+      - todo_net
+networks:
+  todo_net:
+    driver: bridge
